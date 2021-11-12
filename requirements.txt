@@ -1,0 +1,4 @@
+pygame
+pygame_menu
+mingus
+fluidsynth
