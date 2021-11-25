@@ -1,0 +1,8 @@
+*.dist/
+*.build/
+*.onefile-build/
+*.exe
+.vscode/
+local_pygame_menu/
+android/
+

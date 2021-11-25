@@ -1,1 +1,1 @@
-soundfonts/Guitar.sf2 filter=lfs diff=lfs merge=lfs -text
+soundfonts/Guitar.sf2.unused filter=lfs diff=lfs merge=lfs -text

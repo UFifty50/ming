@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+
+# nuitka-project: --onefile
+# nuitka-project: --onefile-windows-splash-screen-image=D:\\Jonathan\\Documents\\ming\\cornflower.png
+
 """
 *** Description ***
     A pygame MIDI piano.
@@ -18,22 +22,65 @@
         backspace    channel down
         \        channel up
 """
+""" HOW TO BUILD
+set input=ming.py
+set output=%input%.exe
+set debug=--show-scons --plugin-enable=pylint-warnings --show-progress --plugin-enable=pylint-warnings
+
+python.exe -m nuitka --include-data-file=libfluidsynth.dll=mingus\midi\libfluidsynth.dll \
+        --onefile-windows-splash-screen-image=D:\\Jonathan\\Documents\\ming\\cornflower.png \
+        --include-data-file=local_pygame_menu\resources\fonts\*.ttf=pygame_menu\resources\fonts\ \
+        --include-data-file=libfluidsynth.dll=libfluidsynth.dll \
+        --include-data-file=soundfonts\*.sf2=soundfonts\ \
+        --include-data-file=imgs\*=imgs\ \
+        --include-data-file=dlls\*.dll=dlls\ \
+        --windows-icon-from-ico=favicon.ico
+        --include-package-data pygame_menu \
+        --plugin-enable=numpy  --enable-plugin=anti-bloat \
+        --noinclude-pytest-mode=nofollow --noinclude-setuptools-mode=nofollow \
+        --python-flag=nosite \
+        --onefile -j 5 -o \
+        %output% %input% %debug%
+"""
+import os
+
+basepath = os.path.dirname(os.path.abspath(__file__))
+dllspath = os.path.join(basepath, 'dlls')
+os.environ['PATH'] = dllspath + os.pathsep + os.environ['PATH']
 
 import pygame
 import pygame_menu
 from pygame.locals import *
-from mingus.core import notes, chords
-from mingus.containers import *
-from mingus.containers.instrument import Instrument, Piano, Guitar
+from mingus.core import chords
+from mingus.containers import Note
 from mingus.midi import fluidsynth
-import os
 import sys
-from PIL import Image
+import time
+import tempfile
+
+# from urllib.request import urlopen
+
+VERSION = "0.9.9"
+
+def checkForUpdate():
+    print("Checking for updates...")
+    """f1 = urlopen("https://raw.githubusercontent.com/UFifty50/temp/main/ming.version").read()
+    
+    if f1 != VERSION:
+        print("updates found.")
+        print("updating...")
+        update = urlopen("http://files.ufifty50.rf.gd/ming.py.exe").read()
+        with open(sys.argv[0], 'wb') as file: file.write(update)
+        print("updated!")
+        os.execle(sys.argv[0])
+    else:
+        print("up to date.")"""
+    print("Up to date.")
 
 """ **- defines -** """
 OCTAVES = 5  # number of octaves to show
 LOWEST = 2  # lowest octave to show
-P_FADEOUT = 0.07
+P_FADEOUT = 0.5
 G_FADEOUT = 0.12
 WHITE_KEY = 0
 BLACK_KEY = 1
@@ -48,6 +95,7 @@ WHITE_KEYS = [
 ]
 BLACK_KEYS = ["C#", "D#", "F#", "G#", "A#"]
 UKE_STRINGS = ["G", "C", "E", "A"]
+pth = os.path.dirname(os.path.abspath(__file__)).format()
 
 """ **- window init -** """
 pygame.init()
@@ -56,6 +104,27 @@ font = pygame.font.SysFont("monospace", 12)
 global screen
 screen = pygame.display.set_mode((450, 325))
 
+""" **- Menu Functions -** """
+def start():
+    widget = menu.get_widget("Instr")
+    instr = widget.get_value()[0][0]
+    pygame.display.set_caption(instr)
+    if widget.get_value()[1] == 0: piano()
+    elif widget.get_value()[1] == 1: ukulele()
+    elif widget.get_value()[1] == 2: guitar()
+    elif widget.get_value()[1] == 3: fhorn()
+    else: pygame.quit(); main()
+"""
+    match widget.get_value()[1]:
+        case 0:
+            piano()
+        case 1:
+            ukulele()
+        case 2:
+            guitar()
+        case 3:
+            fhorn()
+"""
 
 def load_img(name):
     """Load image and return an image object"""
@@ -77,12 +146,12 @@ def load_img(name):
 
 
 def piano():
-    sf2 = "soundfonts/Piano.sf2"
-    if not fluidsynth.init(sf2, "alsa"):
+    sf2 = f'{pth}/soundfonts/Piano.sf2'
+    if not fluidsynth.init(sf2):
         print("Couldn't load soundfont", sf2)
         sys.exit(1)
 
-    (key_graphic, kgrect) = load_img("imgs/keys.png")
+    (key_graphic, kgrect) = load_img(f'{pth}/imgs/keys.png')
     (width, height) = (kgrect.width, kgrect.height)
     white_key_width = width / 7
     # pressed is a surface that is used to show where a key has been pressed
@@ -208,6 +277,7 @@ def piano():
         for event in pygame.event.get():
             if event.type == QUIT:
                 quit = True
+                pygame.display.set_mode((450, 325))
             if event.type == KEYDOWN:
                 print(event.key)
                 if event.key == K_z:
@@ -287,25 +357,47 @@ def piano():
                 elif event.key == K_ESCAPE:
                     quit = True
                     pygame.display.set_mode((450, 325))
-                elif event == QUIT:
-                    quit = True
-                    pygame.display.set_mode((450, 325))
         pygame.display.update()
         tick += 0.001
 
 
-def fhorn(w, h): ...
-def ukulele(w, h): ...
+def fhorn():
+    mytheme = pygame_menu.themes.THEME_DARK.copy()
+    mytheme.widget_font = pygame_menu.font.FONT_OPEN_SANS
+    pygame.display.set_mode((450, 325))
+    hornmenu = pygame_menu.Menu('W.I.P.', 450, 325,
+                            theme=mytheme)
+    hornmenu.add.label("This Instrument is not yet")
+    hornmenu.add.label("finished, please bear with me :)")
+    hornmenu.add.selector(
+    'Instrument :', [('Piano', f'{pth}/imgs/keys.png'), ('Ukulele', f'{pth}/imgs/keys.png'), ('Guitar', f'{pth}/imgs/keys.png'), ('French Horn', f'{pth}/imgs/keys.png')], selector_id="Instr")
+    hornmenu.add.button('Start', start)
+    hornmenu.add.button('Quit', pygame_menu.events.EXIT)
+    hornmenu.mainloop(screen)
+    
+def ukulele():
+    mytheme = pygame_menu.themes.THEME_DARK.copy()
+    mytheme.widget_font = pygame_menu.font.FONT_OPEN_SANS
+    pygame.display.set_mode((450, 325))
+    ukemenu = pygame_menu.Menu('W.I.P.', 450, 325,
+                            theme=mytheme)
+    ukemenu.add.label("This Instrument is not yet")
+    ukemenu.add.label("finished, please bear with me :)")
+    ukemenu.add.selector(
+    'Instrument :', [('Piano', f'{pth}/imgs/keys.png'), ('Ukulele', f'{pth}/imgs/keys.png'), ('Guitar', f'{pth}/imgs/keys.png'), ('French Horn', f'{pth}/imgs/keys.png')], selector_id="Instr")
+    ukemenu.add.button('Start', start)
+    ukemenu.add.button('Quit', pygame_menu.events.EXIT)
+    ukemenu.mainloop(screen)
 
 
 def guitar():
-    sf2 = "soundfonts/Guitar.sf2"
-    if not fluidsynth.init(sf2, "alsa"):
+    sf2 = f'{pth}/soundfonts/Guitar.sf2'
+    if not fluidsynth.init(sf2):
         print("Couldn't load soundfont", sf2)
         sys.exit(1)
 
-    (key_graphic, kgrect) = load_img("imgs/Guitar.png")
-    (key_graphic2, kgrect2) = load_img("imgs/Guitar2.png")
+    (key_graphic, kgrect) = load_img(f'{pth}/imgs/Guitar.png')
+    (key_graphic2, kgrect2) = load_img(f'{pth}/imgs/Guitar2.png')
     (width, height) = (kgrect.width, kgrect.height)
     string_width = width / 7
     # pressed is a surface that is used to show where a key has been pressed
@@ -366,6 +458,7 @@ def guitar():
         for event in pygame.event.get():
             if event.type == QUIT:
                 quit = True
+                pygame.display.set_mode((450, 325))
             if event.type == KEYDOWN:
                 print(event.key)
                 if event.key == K_z:
@@ -445,43 +538,32 @@ def guitar():
                 elif event.key == K_ESCAPE:
                     quit = True
                     pygame.display.set_mode((450, 325))
-                elif event == QUIT:
-                    quit = True
-                    pygame.display.set_mode((450, 325))
-            pygame.display.update()
-            tick += 0.001
         pygame.display.update()
-
-
-""" **- Menu Functions -** """
-
-
-def start():
-    widget = menu.get_widget("Instr")
-    instr = widget.get_value()[0][0]
-    pygame.display.set_caption(instr)
-    match widget.get_value()[1]:
-        case 0:
-            piano()
-        case 1:
-            ukulele()
-        case 2:
-            guitar()
-        case 3:
-            fhorn()
-
+        tick += 0.001
 
 """ **- Menu init -** """
+time.sleep(2)
+mytheme = pygame_menu.themes.THEME_BLUE.copy()
+mytheme.widget_font = pygame_menu.font.FONT_OPEN_SANS
 pygame.display.set_mode((450, 325))
 menu = pygame_menu.Menu('Welcome', 450, 325,
-                        theme=pygame_menu.themes.THEME_BLUE)
+                        theme=mytheme)
 menu.add.selector(
-    'Instrument :', [('Piano', "imgs/keys.png"), ('Ukulele', "imgs/keys.png"), ('Guitar', "imgs/keys.png"), ('French Horn', "imgs/keys.png")], selector_id="Instr")
+    'Instrument :', [('Piano', f'{pth}/imgs/keys.png'), ('Ukulele', f'{pth}/imgs/keys.png'), ('Guitar', f'{pth}/imgs/keys.png'), ('French Horn', f'{pth}/imgs/keys.png')], selector_id="Instr")
 menu.add.button('Start', start)
 menu.add.button('Quit', pygame_menu.events.EXIT)
-menu.mainloop(screen)
+        
+def main():
+    checkForUpdate()
+    if "NUITKA_ONEFILE_PARENT" in os.environ:
+        splash_filename = os.path.join(
+            tempfile.gettempdir(),
+            "onefile_%d_splash_feedback.tmp" % int(os.environ["NUITKA_ONEFILE_PARENT"]),
+        )
+        
+        if os.path.exists(splash_filename):
+            os.unlink(splash_filename)
+    
+    menu.mainloop(screen)
 
-"""
-fluidsynth.init("/home/jonathan/ming/Guitar.sf2", "alsa")
-fluidsynth.Note())
-"""
+main()
