@@ -1,3 +1,5 @@
+@echo off
+
 set input=ming.py
 set debugargs=--show-scons --plugin-enable=pylint-warnings --show-progress --plugin-enable=pylint-warnings --windows-disable-console --windows-force-stderr-spec=err.txt 
 set speedargs=--enable-plugin=anti-bloat --noinclude-pytest-mode=nofollow --noinclude-setuptools-mode=nofollow --python-flag=nosite 
