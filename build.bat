@@ -7,10 +7,10 @@ IF ERRORLEVEL 1 (
     ECHO Python is missing. Ensure it is installed and placed in your PATH.
     EXIT /B
 ) ELSE (
-    FOR /F "tokens=*" %a in ('where python') do set python=%a
-    FOR /F "tokens=*" %a in ('%python% --version') do set pyver=%a
-    for /F "tokens=*" %A in ('%pyver%') do (
-        set "pyver=%A"
+    for /F "tokens=*" %%A in ('where python') do set python=%AA
+    for /F "tokens=*" %%A in ('%python% --version') do set pyver=%%A
+    for /F "tokens=*" %%A in ("%pyver%") do (
+        set "pyver=%%A"
     )
     set py=%pyver:~0,1%
     IF NOT py == 3 (
