@@ -1,10 +1,32 @@
 @echo off
+setlocal EnableExtensions DisableDelayedExpansion
+
+
+where /q python
+IF ERRORLEVEL 1 (
+    ECHO Python is missing. Ensure it is installed and placed in your PATH.
+    EXIT /B
+) ELSE (
+    for /F "tokens=1,2* delims=ES- " %A in ("%pyver%") do (
+        set "pyver=%A"
+    )
+    set py=%pyver:~0,1%
+    IF NOT py == 3 (
+        ECHO Your python version is too old! Python 3.9 is required.
+        EXIT /B
+    ) ELSE (
+        ECHO Python found. Let's go!
+    )
+)
+
+FOR /F "tokens=*" %a in ('where python') do set python=%a
 
 set input=ming.py
 set debugargs=--windows-disable-console --windows-force-stderr-spec=err.txt 
 set verboseargs=--show-scons --plugin-enable=pylint-warnings --show-progress --plugin-enable=pylint-warnings 
 set speedargs=--enable-plugin=anti-bloat --noinclude-pytest-mode=nofollow --noinclude-setuptools-mode=nofollow --python-flag=nosite 
-set basecmd=python.exe -m nuitka --include-data-file=dlls\libfluidsynth.dll=mingus\midi\libfluidsynth.dll --include-data-file=local_pygame_menu\resources\fonts\*.ttf=pygame_menu\resources\fonts\ --include-data-file=dlls\libfluidsynth.dll=libfluidsynth.dll  --include-data-file=soundfonts\*.sf2=soundfonts\ --include-data-file=imgs\*=imgs\ --include-data-file=dlls\*.dll=dlls\ --windows-icon-from-ico=favicon.ico --include-package-data pygame_menu --plugin-enable=numpy  --onefile --onefile-windows-splash-screen-image=D:\Jonathan\Documents\ming\cornflower.png 
+set basecmd=%python% -m nuitka --include-data-file=dlls\libfluidsynth.dll=mingus\midi\libfluidsynth.dll --include-data-file=local_pygame_menu\resources\fonts\*.ttf=pygame_menu\resources\fonts\ --include-data-file=dlls\libfluidsynth.dll=libfluidsynth.dll  --include-data-file=soundfonts\*.sf2=soundfonts\ --include-data-file=imgs\*=imgs\ --include-data-file=dlls\*.dll=dlls\ --windows-icon-from-ico=favicon.ico --include-package-data pygame_menu --plugin-enable=numpy  --onefile --onefile-windows-splash-screen-image=D:\Jonathan\Documents\ming\cornflower.png 
+
 
 set /p output="What should the exe be named? "
 set /p debug="Compile with debug options? (y/n) "
