@@ -7,7 +7,9 @@ IF ERRORLEVEL 1 (
     ECHO Python is missing. Ensure it is installed and placed in your PATH.
     EXIT /B
 ) ELSE (
-    for /F "tokens=1,2* delims=ES- " %A in ("%pyver%") do (
+    FOR /F "tokens=*" %a in ('where python') do set python=%a
+    FOR /F "tokens=*" %a in ('%python% --version') do set pyver=%a
+    for /F "tokens=*" %A in ('%pyver%') do (
         set "pyver=%A"
     )
     set py=%pyver:~0,1%
@@ -18,8 +20,6 @@ IF ERRORLEVEL 1 (
         ECHO Python found. Let's go!
     )
 )
-
-FOR /F "tokens=*" %a in ('where python') do set python=%a
 
 set input=ming.py
 set debugargs=--windows-disable-console --windows-force-stderr-spec=err.txt 
