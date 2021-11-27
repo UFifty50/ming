@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
-# THIS IS ALL BATCH AT THE MOMENT, DO NOT RUN
-# IT WONT WORK, TRUST ME
+echo "THIS SHOULD WORK, BUT I HAVENT TESTED IT YET"
+echo "PROCEED WITH CAUTION"
 
-which python &> /dev/null
+which python > /dev/null 2>&1
 if [ $? = 1 ]; then
     echo "Python is missing. Ensure it is installed and placed in your PATH."
     exit
@@ -26,19 +26,20 @@ speedargs="--enable-plugin=anti-bloat --noinclude-pytest-mode=nofollow --noinclu
 basecmd="$python -m nuitka --include-data-file=dlls/libfluidsynth.dll=mingus/midi/libfluidsynth.dll --include-data-file=local_pygame_menu/resources/fonts/*.ttf=pygame_menu/resources/fonts/ --include-data-file=dlls/libfluidsynth.dll=libfluidsynth.dll  --include-data-file=soundfonts/*.sf2=soundfonts/ --include-data-file=imgs/*=imgs/ --include-data-file=dlls/*.dll=dlls/ --windows-icon-from-ico=favicon.ico --include-package-data pygame_menu --plugin-enable=numpy  --onefile --onefile-windows-splash-screen-image=D:/Jonathan/Documents/ming/cornflower.png"
 
 
-read -p "What should the exe be named? " output
-read -p "Compile with debug options? (y/n) " debug
-read -p "Compile verbosely? (y/n) " verbose
-read -p "Compile with optimizations? (y/n, default is y) " speed
+read -rp "What should the exe be named? " output
+read -rp "Compile with debug options? (y/n) " debug
+read -rp "Compile verbosely? (y/n) " verbose
+read -rp "Compile with optimizations? (y/n, default is y) " speed
 
-if [ $speed = y ]; then; basecmd="$basecmd $speedargs"; fi
-if [ $debug = y ]; then; basecmd="$basecmd $debugargs"; fi
-if [ $verbose = y ]; then; basecmd="$basecmd $verboseargs"; fi
-if [ `getconf _NPROCESSORS_ONLN` = 1 ]; then
+if [ "$speed" = y ]; then basecmd="$basecmd $speedargs"; fi
+if [ "$debug" = y ]; then basecmd="$basecmd $debugargs"; fi
+if [ "$verbose" = y ]; then basecmd="$basecmd $verboseargs"; fi
+if [ "$(getconf _NPROCESSORS_ONLN)" = 1 ]; then
     cpus=1
-else if [ `getconf _NPROCESSORS_ONLN` = 2 ]; then
+elif [ "$(getconf _NPROCESSORS_ONLN)" = 2 ]; then
    cpus=1
 else
-    cpus=$((`getconf _NPROCESSORS_ONLN` - 2))
+    cpus=$(($(getconf _NPROCESSORS_ONLN) - 2))
+fi
 
 exec $basecmd --output-dir=build -j $cpus  -o build/"$output" $input
