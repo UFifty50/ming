@@ -11,7 +11,7 @@ else
     python="$(which python)"
     pyver="$($python -c "import sys; print(sys.version_info[0:2])")"
     required="(3, 9)"
-    if $pyver != "$required"; then
+    if [ "${pyver@Q}" != "${required@Q}" ]; then
         echo "Your python version is too old! Python 3.9 is required."
         exit
     else
