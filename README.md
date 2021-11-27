@@ -13,3 +13,9 @@ Similarly to above, Ming requires python 3.9 to build, including the modules in 
 To install them run ``python -m pip install -r requirements.txt``
 
 once thats done run `build.bat`
+
+
+
+
+pygame_menu is under the MIT license
+libfluidsynth is under the LGPL 2.1 license
