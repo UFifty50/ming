@@ -71,8 +71,9 @@ def checkForUpdate():
         print("updating...")
         update = urlopen("https://github.com/UFifty50/temp/blob/main/ming.py.exe?raw=true").read()
         with open(sys.argv[0], 'wb') as file: file.write(update)
+        file.close
         print("updated!")
-        os.execle(sys.argv[0])
+        os.execl(sys.argv[0], "")
     else:
         print("up to date.")"""
     print("Up to date.")
