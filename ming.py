@@ -69,7 +69,7 @@ def checkForUpdate():
     if f1 != VERSION:
         print("updates found.")
         print("updating...")
-        update = urlopen("http://files.ufifty50.rf.gd/ming.py.exe").read()
+        update = urlopen("https://github.com/UFifty50/temp/blob/main/ming.py.exe?raw=true").read()
         with open(sys.argv[0], 'wb') as file: file.write(update)
         print("updated!")
         os.execle(sys.argv[0])
