@@ -1,5 +1,5 @@
 # ming
-It's just a nice music program i made for my girlfriends birthday :)
+It's just a nice music program i made for someones birthday :)
 
 ## building
 ### linux
