@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # nuitka-project: --onefile
-# nuitka-project: --onefile-windows-splash-screen-image=D:\\Jonathan\\Documents\\ming\\cornflower.png
+# nuitka-project: --onefile-windows-splash-screen-image=cornflower.png
 
 """
 *** Description ***
